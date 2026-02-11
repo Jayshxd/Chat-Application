@@ -10,8 +10,9 @@ export function connectStomp(
   onError?: (error: string) => void
 ): Client {
   if (stompClient?.active) {
-    stompClient.deactivate();
+    stompClient.deactivate().catch(() => {});
   }
+  stompClient = null;
 
   const client = new Client({
     brokerURL: getWebSocketUrl(),

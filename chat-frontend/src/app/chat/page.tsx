@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo } from "react";
+import { Suspense } from "react";
 import ChatNexus from "@/components/ChatNexus";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -9,14 +9,7 @@ import { useRouter } from "next/navigation";
 function ChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  const roomId = useMemo(() => {
-    const id = searchParams.get("roomId");
-    if (!id) {
-      return null;
-    }
-    return id;
-  }, [searchParams]);
+  const roomId = searchParams.get("roomId");
 
   if (!roomId) {
     router.push("/");

@@ -57,6 +57,21 @@ export default function RoomPortal() {
     }
   }
 
+  function switchToCreate() {
+    setMode("create");
+    setError("");
+  }
+
+  function switchToJoin() {
+    setMode("join");
+    setError("");
+  }
+
+  function handleBack() {
+    setMode("idle");
+    setError("");
+  }
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#09090b]">
       {/* Ambient background effects */}
@@ -131,7 +146,7 @@ export default function RoomPortal() {
                   className="grid grid-cols-2 gap-3"
                 >
                   <button
-                    onClick={() => { setMode("create"); setError(""); }}
+                    onClick={switchToCreate}
                     className="group relative flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 text-center transition-all duration-300 hover:border-violet-500/30 hover:bg-violet-500/[0.04]"
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10 text-violet-400 transition-colors group-hover:bg-violet-500/20">
@@ -143,7 +158,7 @@ export default function RoomPortal() {
                     </div>
                   </button>
                   <button
-                    onClick={() => { setMode("join"); setError(""); }}
+                    onClick={switchToJoin}
                     className="group relative flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 text-center transition-all duration-300 hover:border-cyan-500/30 hover:bg-cyan-500/[0.04]"
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 transition-colors group-hover:bg-cyan-500/20">
@@ -182,7 +197,7 @@ export default function RoomPortal() {
                   </div>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => { setMode("idle"); setError(""); }}
+                      onClick={handleBack}
                       className="rounded-lg border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/[0.06] hover:text-white"
                     >
                       Back
@@ -229,7 +244,7 @@ export default function RoomPortal() {
                   </div>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => { setMode("idle"); setError(""); }}
+                      onClick={handleBack}
                       className="rounded-lg border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/[0.06] hover:text-white"
                     >
                       Back

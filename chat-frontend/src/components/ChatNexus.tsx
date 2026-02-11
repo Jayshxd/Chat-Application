@@ -108,12 +108,12 @@ export default function ChatNexus({ roomId }: ChatNexusProps) {
     }
   }, [messages, initialLoad]);
 
-  // Scroll to bottom on initial load
+  // Scroll to bottom only when initial load completes
   useEffect(() => {
-    if (!initialLoad && messages.length > 0) {
+    if (!initialLoad) {
       messagesEndRef.current?.scrollIntoView();
     }
-  }, [initialLoad]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [initialLoad]);
 
   // Intersection Observer for infinite scroll (load older messages)
   const loadMoreMessages = useCallback(async () => {
