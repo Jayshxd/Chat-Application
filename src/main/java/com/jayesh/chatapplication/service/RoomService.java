@@ -1,4 +1,4 @@
-package com.jayesh.chatapplication.controller.service;
+package com.jayesh.chatapplication.service;
 
 import com.jayesh.chatapplication.entities.Message;
 import com.jayesh.chatapplication.entities.Room;
