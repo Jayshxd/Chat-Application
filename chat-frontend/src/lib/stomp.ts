@@ -1,5 +1,7 @@
 import { Client, IMessage } from "@stomp/stompjs";
-import { getWebSocketUrl, type Message } from "./api";
+
+import SockJS from "sockjs-client";
+import { type Message } from "./api";
 
 let stompClient: Client | null = null;
 
@@ -15,7 +17,7 @@ export function connectStomp(
   stompClient = null;
 
   const client = new Client({
-    brokerURL: getWebSocketUrl(),
+    webSocketFactory: () => new SockJS("http://localhost:8080/websocket"),
     reconnectDelay: 5000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
