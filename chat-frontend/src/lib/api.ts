@@ -52,6 +52,6 @@ export async function getMessages(
 }
 
 export function getWebSocketUrl(): string {
-  const base = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:8080/websocket";
+  const base = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:8080";
   return `${base}/websocket`;
 }
