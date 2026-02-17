@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -51,7 +50,9 @@ public class RoomService {
 
     // ! GET MESSAGES OF A ROOM
     public Page<Message> getMessagesOfRoom(String roomId,int pageNo,int pageSize){
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("timestamp").descending());
+        int safePageNo = Math.max(pageNo, 0);
+        int safePageSize = Math.min(Math.max(pageSize, 1), 100);
+        Pageable pageable = PageRequest.of(safePageNo, safePageSize, Sort.by("timestamp").descending());
         return messageRepo.findByRoomId(roomId, pageable);
     }
 }

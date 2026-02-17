@@ -33,11 +33,13 @@ export default function ChatNexus({ roomId }: ChatNexusProps) {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [copied, setCopied] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const prevScrollHeightRef = useRef<number>(0);
+  const loadingMoreRef = useRef(false);
 
   // Load username from session
   useEffect(() => {
@@ -52,25 +54,35 @@ export default function ChatNexus({ roomId }: ChatNexusProps) {
   // Fetch room details
   useEffect(() => {
     if (!roomId) return;
-    getRoom(roomId).then((r) => {
-      if (!r) {
-        router.push("/");
-        return;
-      }
-      setRoom(r);
-    });
+    getRoom(roomId)
+      .then((r) => {
+        if (!r) {
+          router.push("/");
+          return;
+        }
+        setRoom(r);
+      })
+      .catch(() => {
+        setLoadError("Unable to load room details.");
+      });
   }, [roomId, router]);
 
   // Load initial messages
   useEffect(() => {
     if (!roomId) return;
-    getMessages(roomId, 0, 50).then((page) => {
-      // Messages come in descending order from API, reverse for chronological display
-      setMessages(page.content.slice().reverse());
-      setCurrentPage(0);
-      setHasMore(!page.last);
-      setInitialLoad(false);
-    });
+    getMessages(roomId, 0, 50)
+      .then((page) => {
+        // Messages come in descending order from API, reverse for chronological display
+        setMessages(page.content.slice().reverse());
+        setCurrentPage(0);
+        setHasMore(!page.last);
+      })
+      .catch(() => {
+        setLoadError("Unable to load messages. Please refresh.");
+      })
+      .finally(() => {
+        setInitialLoad(false);
+      });
   }, [roomId]);
 
   // Connect WebSocket
@@ -117,7 +129,8 @@ export default function ChatNexus({ roomId }: ChatNexusProps) {
 
   // Intersection Observer for infinite scroll (load older messages)
   const loadMoreMessages = useCallback(async () => {
-    if (loadingHistory || !hasMore) return;
+    if (loadingMoreRef.current || loadingHistory || !hasMore) return;
+    loadingMoreRef.current = true;
     setLoadingHistory(true);
     const container = scrollContainerRef.current;
     if (container) {
@@ -127,13 +140,20 @@ export default function ChatNexus({ roomId }: ChatNexusProps) {
       const nextPage = currentPage + 1;
       const page = await getMessages(roomId, nextPage, 50);
       const olderMessages = page.content.slice().reverse();
-      setMessages((prev) => [...olderMessages, ...prev]);
+      setMessages((prev) => {
+        const seen = new Set(prev.map((m) => m.id || `${m.sender}-${m.timestamp}-${m.content}`));
+        const uniqueOlder = olderMessages.filter(
+          (m) => !seen.has(m.id || `${m.sender}-${m.timestamp}-${m.content}`)
+        );
+        return [...uniqueOlder, ...prev];
+      });
       setCurrentPage(nextPage);
       setHasMore(!page.last);
     } catch {
       // silently fail
     } finally {
       setLoadingHistory(false);
+      loadingMoreRef.current = false;
     }
   }, [loadingHistory, hasMore, currentPage, roomId]);
 
@@ -251,6 +271,12 @@ export default function ChatNexus({ roomId }: ChatNexusProps) {
           Leave
         </button>
       </header>
+
+      {loadError && (
+        <div className="relative z-10 mx-4 mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300 sm:mx-6">
+          {loadError}
+        </div>
+      )}
 
       {/* Messages area */}
       <div
