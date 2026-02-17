@@ -8,11 +8,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.time.LocalDateTime;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -29,12 +25,23 @@ public class ChatController {
             @DestinationVariable String roomId,
             Message message
     ){
-        message.setRoomId(roomId);
-        message.setTimestamp(LocalDateTime.now());
-        messageRepo.save(message);
+        if (!roomRepo.existsById(roomId)) {
+            throw new IllegalArgumentException("Room does not exist");
+        }
 
-        //* Return it so @SendTo can broadcast it to everyone else
-        return message;
+        if (message == null || message.getContent() == null || message.getContent().isBlank()) {
+            throw new IllegalArgumentException("Message content is required");
+        }
+
+        message.setRoomId(roomId);
+        message.setContent(message.getContent().trim());
+        message.setSender(
+                message.getSender() == null || message.getSender().isBlank()
+                        ? "Anonymous"
+                        : message.getSender().trim()
+        );
+        message.setTimestamp(LocalDateTime.now());
+        return messageRepo.save(message);
     }
 
 }

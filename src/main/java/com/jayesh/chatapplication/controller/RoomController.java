@@ -35,7 +35,7 @@ public class RoomController {
     public ResponseEntity<Room> getRoom(@PathVariable String roomId) {
         Room response = roomService.getRoomById(roomId);
         if(response == null) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.ok().body(response);
     }
@@ -49,8 +49,7 @@ public class RoomController {
             @RequestParam(defaultValue = "0")int pageNo) {
         Page<Message> response = roomService.getMessagesOfRoom(roomId,pageNo,pageSize);
         if(response == null) {
-            return ResponseEntity.badRequest()
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.ok(response);
     }
